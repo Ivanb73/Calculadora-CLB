@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Precios — Corta la Bocha</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+:root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #222222;
+    --border: #2e2e2e;
+    --accent: #c8f060;
+    --accent2: #60e0f0;
+    --text: #f0f0f0;
+    --muted: #888;
+    --danger: #f06060;
+  }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+ body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+ .container { max-width: 700px; margin: 0 auto; }
+ header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .brand {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  h1 {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .productos {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+  .prod-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 7px 16px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .prod-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .prod-btn.active { background: var(--accent); border-color: var(--accent); color: #0f0f0f; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.25rem;
+  }
+  .card-title {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .field { margin-bottom: 10px; }
+  .field:last-child { margin-bottom: 0; }
+  .field label {
+    display: block;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .input-wrap {
+    display: flex;
+    align-items: center;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.15s;
+  }
+  .input-wrap:focus-within { border-color: var(--accent); }
+  .input-wrap span {
+    padding: 0 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    background: var(--surface2);
+  }
+  .input-wrap input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    color: var(--text);
+    padding: 9px 10px 9px 0;
+    text-align: right;
+  }
+  .input-wrap input[type="text"] {
+    text-align: left;
+    padding: 9px 0 9px 10px;
+  }
+  input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .slider-field { margin-bottom: 0; }
+  .slider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .slider-header label { font-size: 13px; color: var(--muted); }
+  .slider-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--accent);
+  }
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+    outline: none;
+    cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 3px solid var(--surface);
+  }
+  .results {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin-top: 12px;
+  }
+  .results-title {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.25rem;
+  }
+  .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.5rem; }
+  .metric {
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 1rem;
+  }
+  .metric-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .metric-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .metric-val.green { color: var(--accent); }
+  .metric-val.blue { color: var(--accent2); }
+  .b-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    font-size: 13px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .b-row:last-child { border-bottom: none; }
+  .b-row span:last-child {
+    font-family: 'DM Mono', monospace;
+    color: var(--text);
+  }
+  .b-row.total {
+    margin-top: 4px;
+    padding-top: 10px;
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--text);
+    border-top: 1px solid var(--border);
+    border-bottom: none;
+  }
+  .b-row.total span:last-child { color: var(--accent); font-size: 16px; }
+  .tip {
+    margin-top: 1.5rem;
+    padding: 12px 16px;
+    background: rgba(200, 240, 96, 0.06);
+    border: 1px solid rgba(200, 240, 96, 0.15);
+    border-radius: 10px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .tip strong { color: var(--accent); font-weight: 500; }
+  .btn-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  @media (max-width: 500px) {
+    .grid { grid-template-columns: 1fr; }
+    .metrics { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="brand">Corta la Bocha</div>
+    <h1>Calculadora de precios</h1>
+  </header>
+
+  <!-- Selector de producto -->
+  <div class="productos">
+    <button class="prod-btn active" onclick="setProducto(this, 3500, 800, 500); setModo('producto')">Remera</button>
+    <button class="prod-btn" onclick="setProducto(this, 800, 300, 300); setModo('producto')">Taza</button>
+    <button class="prod-btn" onclick="setProducto(this, 1200, 400, 400); setModo('producto')">Tote bag</button>
+    <button class="prod-btn" onclick="setProducto(this, 6500, 1200, 600); setModo('producto')">Buzo</button>
+    <button class="prod-btn" onclick="setProducto(this, 9000, 1500, 800); setModo('producto')">Campera</button>
+    <button class="prod-btn" onclick="setProducto(this, 0, 400, 500); setModo('producto')">DTF solo</button>
+    <button class="prod-btn" onclick="setModo('diseno'); setProducto(this, 0, 0, 0)">✏️ Diseño solo</button>
+  </div>
+
+  <!-- Sección diseño solo -->
+  <div id="seccion-diseno" style="display:none; margin-bottom: 12px;">
+    <div class="card">
+      <div class="card-title">Diseño solo — complejidad</div>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px;">
+        <button class="prod-btn" onclick="setDiseno(this, 'Simple')">Simple</button>
+        <button class="prod-btn" onclick="setDiseno(this, 'Medio')">Medio</button>
+        <button class="prod-btn" onclick="setDiseno(this, 'Mesa DTF / Sublimación')">Mesa DTF / Sublimación</button>
+      </div>
+      <div class="field">
+        <label>Tipo de diseño seleccionado</label>
+        <div class="input-wrap" style="background: var(--surface); padding: 9px 14px;">
+          <span id="tipoDiseno" style="color: var(--muted); font-size: 14px;">Elegí un tipo arriba</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Precio base del diseño</label>
+        <div class="input-wrap"><span>$</span><input type="number" id="precioDiseno" value="0" min="0" oninput="calc()"></div>
+      </div>
+      <div class="field">
+        <label>Tiempo estimado (horas)</label>
+        <div class="input-wrap"><span>hs</span><input type="number" id="horasDiseno" value="1" min="0.5" step="0.5" oninput="calc()"></div>
+      </div>
+      <div class="field">
+        <label>Valor hora</label>
+        <div class="input-wrap"><span>$</span><input type="number" id="valorHora" value="1500" min="0" oninput="calc()"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección producto -->
+  <div class="grid" id="seccion-producto">
+    <div class="card">
+      <div class="card-title">Costos por unidad</div>
+      <div class="field">
+        <label>Materiales / insumos</label>
+        <div class="input-wrap"><span>$</span><input type="number" id="materiales" value="3500" min="0" oninput="calc()"></div>
+      </div>
+      <div class="field">
+        <label>Transfer DTF (si aplica)</label>
+        <div class="input-wrap"><span>$</span><input type="number" id="dtf" value="0" min="0" oninput="calc()"></div>
+      </div>
+      <div class="field">
+        <label>Mano de obra</label>
+        <div class="input-wrap"><span>$</span><input type="number" id="manoobra" value="800" min="0" oninput="calc()"></div>
+      </div>
+      <div class="field">
+        <label>Diseño</label>
+        <div class="input-wrap"><span>$</span><input type="number" id="diseno" value="500" min="0" oninput="calc()"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Otros costos</div>
+      <div class="field">
+        <label>Gastos fijos (prorateados)</label>
+        <div class="input-wrap"><span>$</span><input type="number" id="fijos" value="300" min="0" oninput="calc()"></div>
+      </div>
+      <div class="field">
+        <label>Meta independencia</label>
+        <div class="input-wrap"><span>$</span><input type="number" id="meta" value="200" min="0" oninput="calc()"></div>
+      </div>
+      <div class="field">
+        <label>Cantidad de unidades</label>
+        <div class="input-wrap"><span>u.</span><input type="number" id="cantidad" value="1" min="1" oninput="calc()"></div>
+      </div>
+      <div class="field slider-field" style="margin-top: 16px;">
+        <div class="slider-header">
+          <label>Margen de ganancia</label>
+          <span class="slider-val" id="margenVal">30%</span>
+        </div>
+        <input type="range" id="margen" min="10" max="100" step="5" value="30"
+          oninput="document.getElementById('margenVal').textContent=this.value+'%'; calc()">
+      </div>
+    </div>
+  </div>
+
+  <!-- Resultados -->
+  <div class="results">
+    <div class="results-title">Resultado</div>
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">Costo total por unidad</div>
+        <div class="metric-val" id="costoUnit">$ 0</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Precio de venta sugerido</div>
+        <div class="metric-val green" id="precioVenta">$ 0</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Ganancia por unidad</div>
+        <div class="metric-val blue" id="gananciaUnit">$ 0</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Total pedido (<span id="cantLabel">1</span> u.)</div>
+        <div class="metric-val green" id="totalPedido">$ 0</div>
+      </div>
+    </div>
+
+<div class="breakdown">
+      <div class="b-row"><span id="labelMat">Materiales</span><span id="bMat">$ 0</span></div>
+      <div class="b-row"><span id="labelDtf">Transfer DTF</span><span id="bDtf">$ 0</span></div>
+      <div class="b-row"><span id="labelMano">Mano de obra</span><span id="bMano">$ 0</span></div>
+      <div class="b-row"><span id="labelDis">Diseño</span><span id="bDis">$ 0</span></div>
+      <div class="b-row"><span>Gastos fijos</span><span id="bFij">$ 0</span></div>
+      <div class="b-row"><span>Meta independencia</span><span id="bMeta">$ 0</span></div>
+      <div class="b-row"><span>Ganancia (<span id="bPct">30</span>%)</span><span id="bGan">$ 0</span></div>
+      <div class="b-row total"><span>Precio final por unidad</span><span id="bTotal">$ 0</span></div>
+    </div>
+
+<div class="tip">
+      <strong>Tip:</strong> El campo <strong>Meta independencia</strong> es tu aporte mensual para mudarte dividido por la cantidad de unidades que producís por mes. Así cada venta te acerca a tu objetivo.
+    </div>
+  </div>
+
+  <!-- Guardar presupuesto -->
+  <div class="card" style="margin-top: 12px;">
+    <div class="card-title">Guardar presupuesto</div>
+    <div class="field">
+      <label>Nombre del cliente</label>
+      <div class="input-wrap">
+        <input type="text" id="clienteNombre" placeholder="Ej: Juan">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="prod-btn" onclick="guardarPresupuesto()">Guardar</button>
+      <button class="prod-btn" onclick="cargarPresupuesto()">Cargar</button>
+      <button class="prod-btn" onclick="copiarTexto()">Copiar texto</button>
+    </div>
+  </div>
+
+</div><!-- fin .container -->
+
+<script>
+function fmt(n) {
+  return '$ ' + Math.round(n).toLocaleString('es-AR');
+}
+
+var modoActual = 'producto';
+
+function setModo(modo) {
+  modoActual = modo;
+  document.getElementById('seccion-diseno').style.display = modo === 'diseno' ? 'block' : 'none';
+  document.getElementById('seccion-producto').style.display = modo === 'producto' ? 'grid' : 'none';
+  calc();
+}
+
+function setDiseno(btn, tipo) {
+  document.querySelectorAll('#seccion-diseno .prod-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tipoDiseno').textContent = tipo;
+  var precios = { 'Simple': 2000, 'Medio': 4500, 'Mesa DTF / Sublimación': 7000 };
+  var horas = { 'Simple': 1, 'Medio': 2.5, 'Mesa DTF / Sublimación': 5 };
+  document.getElementById('precioDiseno').value = precios[tipo] || 0;
+  document.getElementById('horasDiseno').value = horas[tipo] || 1;
+  calc();
+}
+
+function calc() {
+  var fij = parseFloat(document.getElementById('fijos').value) || 0;
+  var meta = parseFloat(document.getElementById('meta').value) || 0;
+  var margen = parseFloat(document.getElementById('margen').value) || 0;
+  var cant = parseFloat(document.getElementById('cantidad').value) || 1;
+  var costo, mat2, dtf2, mano2, dis2;
+
+  if (modoActual === 'diseno') {
+    var base = parseFloat(document.getElementById('precioDiseno').value) || 0;
+    var horas = parseFloat(document.getElementById('horasDiseno').value) || 0;
+    var valorHora = parseFloat(document.getElementById('valorHora').value) || 0;
+    var costoHoras = horas * valorHora;
+    mat2 = base; dtf2 = costoHoras; mano2 = 0; dis2 = 0;
+    costo = base + costoHoras + fij + meta;
+    document.getElementById('labelMat').textContent = 'Precio base diseño';
+    document.getElementById('labelDtf').textContent = 'Costo por horas (' + horas + ' hs)';
+    document.getElementById('labelMano').textContent = 'Mano de obra';
+    document.getElementById('labelDis').textContent = 'Diseño adicional';
+  } else {
+    mat2 = parseFloat(document.getElementById('materiales').value) || 0;
+    dtf2 = parseFloat(document.getElementById('dtf').value) || 0;
+    mano2 = parseFloat(document.getElementById('manoobra').value) || 0;
+    dis2 = parseFloat(document.getElementById('diseno').value) || 0;
+    costo = mat2 + dtf2 + mano2 + dis2 + fij + meta;
+    document.getElementById('labelMat').textContent = 'Materiales';
+    document.getElementById('labelDtf').textContent = 'Transfer DTF';
+    document.getElementById('labelMano').textContent = 'Mano de obra';
+    document.getElementById('labelDis').textContent = 'Diseño';
+  }
+
+  var ganancia = costo * (margen / 100);
+  var precio = costo + ganancia;
+  var totalPedido = precio * cant;
+
+  document.getElementById('costoUnit').textContent = fmt(costo);
+  document.getElementById('precioVenta').textContent = fmt(precio);
+  document.getElementById('gananciaUnit').textContent = fmt(ganancia);
+  document.getElementById('totalPedido').textContent = fmt(totalPedido);
+  document.getElementById('cantLabel').textContent = Math.round(cant);
+
+  document.getElementById('bMat').textContent = fmt(mat2);
+  document.getElementById('bDtf').textContent = fmt(dtf2);
+  document.getElementById('bMano').textContent = modoActual === 'diseno' ? '—' : fmt(mano2);
+  document.getElementById('bDis').textContent = modoActual === 'diseno' ? '—' : fmt(dis2);
+  document.getElementById('bFij').textContent = fmt(fij);
+  document.getElementById('bMeta').textContent = fmt(meta);
+  document.getElementById('bGan').textContent = fmt(ganancia);
+  document.getElementById('bPct').textContent = Math.round(margen);
+  document.getElementById('bTotal').textContent = fmt(precio);
+}
+
+function setProducto(btn, mat, mano, dis) {
+  document.querySelectorAll('.prod-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('materiales').value = mat;
+  document.getElementById('manoobra').value = mano;
+  document.getElementById('diseno').value = dis;
+  document.getElementById('dtf').value = 0;
+  calc();
+}
+
+function getData() {
+  return {
+    cliente: document.getElementById('clienteNombre').value || 'Sin nombre',
+    modo: modoActual,
+    materiales: document.getElementById('materiales').value,
+    dtf: document.getElementById('dtf').value,
+    manoobra: document.getElementById('manoobra').value,
+    diseno: document.getElementById('diseno').value,
+    precioDiseno: document.getElementById('precioDiseno').value,
+    horasDiseno: document.getElementById('horasDiseno').value,
+    valorHora: document.getElementById('valorHora').value,
+    fijos: document.getElementById('fijos').value,
+    meta: document.getElementById('meta').value,
+    cantidad: document.getElementById('cantidad').value,
+    margen: document.getElementById('margen').value,
+    precioFinal: document.getElementById('precioVenta').innerText,
+    totalPedido: document.getElementById('totalPedido').innerText,
+    producto: document.querySelector('.prod-btn.active')?.innerText || ''
+  };
+}
+
+function copiarTexto() {
+  var data = getData();
+  var cant = parseInt(data.cantidad) || 1;
+  var texto = 'Hola ' + data.cliente + ', te paso el presupuesto:\n\n'
+    + 'Producto: ' + data.producto + '\n'
+    + 'Cantidad: ' + cant + '\n\n'
+    + 'Precio por unidad: ' + data.precioFinal + '\n'
+    + (cant > 1 ? 'Total por ' + cant + ' unidades: ' + data.totalPedido + '\n' : '')
+    + '\nCualquier duda avisame 👍';
+  navigator.clipboard.writeText(texto);
+  alert('Texto copiado ✔');
+}
+
+function guardarPresupuesto() {
+  var data = getData();
+  var key = 'presupuesto_' + data.cliente + '_' + Date.now();
+  localStorage.setItem(key, JSON.stringify(data));
+  alert('Guardado ✔ (' + data.cliente + ')');
+}
+
+function cargarPresupuesto() {
+  var cliente = document.getElementById('clienteNombre').value.trim();
+  if (!cliente) { alert('Escribí el nombre del cliente primero'); return; }
+
+  var keys = Object.keys(localStorage).filter(k => k.startsWith('presupuesto_' + cliente + '_'));
+  if (keys.length === 0) { alert('No existe ningún presupuesto para ese cliente'); return; }
+
+  keys.sort();
+  var data = JSON.parse(localStorage.getItem(keys[keys.length - 1]));
+
+  setModo(data.modo || 'producto');
+
+  if (data.modo === 'diseno') {
+    document.getElementById('precioDiseno').value = data.precioDiseno || 0;
+    document.getElementById('horasDiseno').value = data.horasDiseno || 1;
+    document.getElementById('valorHora').value = data.valorHora || 1500;
+  } else {
+    document.getElementById('materiales').value = data.materiales || 0;
+    document.getElementById('dtf').value = data.dtf || 0;
+    document.getElementById('manoobra').value = data.manoobra || 0;
+    document.getElementById('diseno').value = data.diseno || 0;
+  }
+
+  document.getElementById('fijos').value = data.fijos || 0;
+  document.getElementById('meta').value = data.meta || 0;
+  document.getElementById('cantidad').value = data.cantidad || 1;
+  document.getElementById('margen').value = data.margen || 30;
+  document.getElementById('margenVal').textContent = (data.margen || 30) + '%';
+
+  calc();
+  alert('Presupuesto de ' + data.cliente + ' cargado ✔');
+}
+
+calc();
+</script>
+</body>
+</html>
