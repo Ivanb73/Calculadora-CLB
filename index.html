@@ -6,7 +6,7 @@
 <title>Calculadora de Precios — Corta la Bocha</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
-:root {
+  :root {
     --bg: #0f0f0f;
     --surface: #1a1a1a;
     --surface2: #222222;
@@ -16,17 +16,18 @@
     --text: #f0f0f0;
     --muted: #888;
     --danger: #f06060;
+    --warn: #f0a060;
   }
-* { box-sizing: border-box; margin: 0; padding: 0; }
- body {
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
     font-family: 'DM Sans', sans-serif;
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
     padding: 2rem 1rem;
   }
- .container { max-width: 700px; margin: 0 auto; }
- header {
+  .container { max-width: 700px; margin: 0 auto; }
+  header {
     margin-bottom: 2rem;
     padding-bottom: 1.5rem;
     border-bottom: 1px solid var(--border);
@@ -88,6 +89,12 @@
     color: var(--muted);
     margin-bottom: 4px;
   }
+  .field-hint {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 3px;
+    opacity: 0.7;
+  }
   .input-wrap {
     display: flex;
     align-items: center;
@@ -104,6 +111,7 @@
     font-size: 13px;
     color: var(--muted);
     background: var(--surface2);
+    white-space: nowrap;
   }
   .input-wrap input {
     flex: 1;
@@ -153,6 +161,62 @@
     cursor: pointer;
     border: 3px solid var(--surface);
   }
+
+  /* DTF auto calc */
+  .dtf-panel {
+    background: rgba(200,240,96,0.04);
+    border: 1px solid rgba(200,240,96,0.15);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+  }
+  .dtf-panel-title {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .dtf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .dtf-result {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+    line-height: 1.6;
+  }
+  .dtf-result strong { color: var(--accent); font-family: 'DM Mono', monospace; }
+  .dtf-toggle {
+    font-size: 12px;
+    color: var(--accent);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    margin-bottom: 10px;
+    display: inline-block;
+  }
+
+  /* Gastos fijos centralizados */
+  .fijos-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.25rem;
+    margin-bottom: 12px;
+  }
+  .fijos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .fijos-total {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+  }
+  .fijos-total strong { color: var(--accent); font-family: 'DM Mono', monospace; }
+
+  /* Resultados */
   .results {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -207,6 +271,30 @@
     border-bottom: none;
   }
   .b-row.total span:last-child { color: var(--accent); font-size: 16px; }
+
+  /* Punto de equilibrio */
+  .beq-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.25rem;
+    margin-top: 12px;
+  }
+  .beq-metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .beq-metric {
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+  .beq-metric-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; line-height: 1.4; }
+  .beq-metric-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--accent2);
+  }
+
   .tip {
     margin-top: 1.5rem;
     padding: 12px 16px;
@@ -219,9 +307,44 @@
   }
   .tip strong { color: var(--accent); font-weight: 500; }
   .btn-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+
+  .cliente-trae-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    cursor: pointer;
+  }
+  .toggle-switch {
+    width: 36px;
+    height: 20px;
+    background: var(--border);
+    border-radius: 10px;
+    position: relative;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .toggle-switch.on { background: var(--accent); }
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--text);
+    top: 3px;
+    left: 3px;
+    transition: left 0.2s;
+  }
+  .toggle-switch.on::after { left: 19px; background: #0f0f0f; }
+  .toggle-label { font-size: 13px; color: var(--muted); }
+
   @media (max-width: 500px) {
     .grid { grid-template-columns: 1fr; }
     .metrics { grid-template-columns: 1fr; }
+    .dtf-grid { grid-template-columns: 1fr; }
+    .fijos-grid { grid-template-columns: 1fr; }
+    .beq-metrics { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -235,11 +358,11 @@
 
   <!-- Selector de producto -->
   <div class="productos">
-    <button class="prod-btn active" onclick="setProducto(this, 3500, 800, 500); setModo('producto')">Remera</button>
+    <button class="prod-btn active" onclick="setProducto(this, 6500, 800, 500); setModo('producto')">Remera</button>
     <button class="prod-btn" onclick="setProducto(this, 800, 300, 300); setModo('producto')">Taza</button>
     <button class="prod-btn" onclick="setProducto(this, 1200, 400, 400); setModo('producto')">Tote bag</button>
-    <button class="prod-btn" onclick="setProducto(this, 6500, 1200, 600); setModo('producto')">Buzo</button>
-    <button class="prod-btn" onclick="setProducto(this, 9000, 1500, 800); setModo('producto')">Campera</button>
+    <button class="prod-btn" onclick="setProducto(this, 12000, 1200, 600); setModo('producto')">Buzo</button>
+    <button class="prod-btn" onclick="setProducto(this, 18000, 1500, 800); setModo('producto')">Campera</button>
     <button class="prod-btn" onclick="setProducto(this, 0, 400, 500); setModo('producto')">DTF solo</button>
     <button class="prod-btn" onclick="setModo('diseno'); setProducto(this, 0, 0, 0)">✏️ Diseño solo</button>
   </div>
@@ -269,8 +392,35 @@
       </div>
       <div class="field">
         <label>Valor hora</label>
-        <div class="input-wrap"><span>$</span><input type="number" id="valorHora" value="1500" min="0" oninput="calc()"></div>
+        <div class="input-wrap"><span>$</span><input type="number" id="valorHora" value="3000" min="0" oninput="calc()"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- Gastos fijos centralizados (nuevo) -->
+  <div class="fijos-panel" id="panel-fijos">
+    <div class="card-title">⚙️ Gastos fijos mensuales</div>
+    <div class="fijos-grid">
+      <div class="field">
+        <label>Luz + Internet</label>
+        <div class="input-wrap"><span>$</span><input type="number" id="fijo-luz" value="75000" min="0" oninput="calcFijos()"></div>
+      </div>
+      <div class="field">
+        <label>Transporte + insumos</label>
+        <div class="input-wrap"><span>$</span><input type="number" id="fijo-transp" value="75000" min="0" oninput="calcFijos()"></div>
+      </div>
+      <div class="field">
+        <label>Alquiler / plancha (mes)</label>
+        <div class="input-wrap"><span>$</span><input type="number" id="fijo-alquiler" value="0" min="0" oninput="calcFijos()"></div>
+      </div>
+      <div class="field">
+        <label>Otros</label>
+        <div class="input-wrap"><span>$</span><input type="number" id="fijo-otros" value="0" min="0" oninput="calcFijos()"></div>
+      </div>
+    </div>
+    <div class="fijos-total">
+      <span>Total fijos/mes</span>
+      <strong id="fijosTotal">$ 150.000</strong>
     </div>
   </div>
 
@@ -278,36 +428,77 @@
   <div class="grid" id="seccion-producto">
     <div class="card">
       <div class="card-title">Costos por unidad</div>
-      <div class="field">
+
+      <!-- Toggle cliente trae remera -->
+      <div class="cliente-trae-toggle" onclick="toggleClienteTrae()">
+        <div class="toggle-switch" id="toggleSwitch"></div>
+        <span class="toggle-label" id="toggleLabel">El cliente trae la remera</span>
+      </div>
+
+      <div class="field" id="field-materiales">
         <label>Materiales / insumos</label>
-        <div class="input-wrap"><span>$</span><input type="number" id="materiales" value="3500" min="0" oninput="calc()"></div>
+        <div class="input-wrap"><span>$</span><input type="number" id="materiales" value="6500" min="0" oninput="calc()"></div>
       </div>
+
+      <!-- DTF automático -->
+      <div class="dtf-panel">
+        <div class="dtf-panel-title">Transfer DTF — cálculo automático</div>
+        <div class="dtf-grid">
+          <div class="field" style="margin-bottom:0">
+            <label>Ancho diseño (cm)</label>
+            <div class="input-wrap"><span>cm</span><input type="number" id="dtfAncho" value="25" min="1" max="57" oninput="calcDTF()"></div>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label>Alto diseño (cm)</label>
+            <div class="input-wrap"><span>cm</span><input type="number" id="dtfAlto" value="30" min="1" max="100" oninput="calcDTF()"></div>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label>Precio metro DTF</label>
+            <div class="input-wrap"><span>$</span><input type="number" id="dtfPrecioMetro" value="12000" min="0" oninput="calcDTF()"></div>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label>Cant. diseños por prenda</label>
+            <div class="input-wrap"><span>u.</span><input type="number" id="dtfCantDis" value="1" min="1" max="5" oninput="calcDTF()"></div>
+          </div>
+        </div>
+        <div class="dtf-result" id="dtfResult">—</div>
+      </div>
+
       <div class="field">
-        <label>Transfer DTF (si aplica)</label>
+        <label>Transfer DTF (calculado)</label>
         <div class="input-wrap"><span>$</span><input type="number" id="dtf" value="0" min="0" oninput="calc()"></div>
+        <div class="field-hint">Se completa solo, pero podés editarlo manualmente.</div>
       </div>
+
       <div class="field">
         <label>Mano de obra</label>
         <div class="input-wrap"><span>$</span><input type="number" id="manoobra" value="800" min="0" oninput="calc()"></div>
       </div>
       <div class="field">
-        <label>Diseño</label>
+        <label>Diseño (prorateado)</label>
         <div class="input-wrap"><span>$</span><input type="number" id="diseno" value="500" min="0" oninput="calc()"></div>
       </div>
     </div>
+
     <div class="card">
       <div class="card-title">Otros costos</div>
       <div class="field">
-        <label>Gastos fijos (prorateados)</label>
-        <div class="input-wrap"><span>$</span><input type="number" id="fijos" value="300" min="0" oninput="calc()"></div>
+        <label>Gastos fijos (por unidad)</label>
+        <div class="input-wrap"><span>$</span><input type="number" id="fijos" value="0" min="0" oninput="calc()" readonly style="opacity:0.6; cursor:not-allowed;"></div>
+        <div class="field-hint">Se calcula solo desde gastos fijos ↑</div>
       </div>
       <div class="field">
-        <label>Meta independencia</label>
+        <label>Meta independencia (por unidad)</label>
         <div class="input-wrap"><span>$</span><input type="number" id="meta" value="200" min="0" oninput="calc()"></div>
       </div>
       <div class="field">
         <label>Cantidad de unidades</label>
-        <div class="input-wrap"><span>u.</span><input type="number" id="cantidad" value="1" min="1" oninput="calc()"></div>
+        <div class="input-wrap"><span>u.</span><input type="number" id="cantidad" value="1" min="1" oninput="calcFijos(); calc()"></div>
+      </div>
+      <div class="field">
+        <label>Pedidos similares por mes (estimado)</label>
+        <div class="input-wrap"><span>pedidos</span><input type="number" id="pedidosMes" value="4" min="1" oninput="calcFijos(); calc()"></div>
+        <div class="field-hint">Sirve para calcular punto de equilibrio</div>
       </div>
       <div class="field slider-field" style="margin-top: 16px;">
         <div class="slider-header">
@@ -342,7 +533,7 @@
       </div>
     </div>
 
-<div class="breakdown">
+    <div class="breakdown">
       <div class="b-row"><span id="labelMat">Materiales</span><span id="bMat">$ 0</span></div>
       <div class="b-row"><span id="labelDtf">Transfer DTF</span><span id="bDtf">$ 0</span></div>
       <div class="b-row"><span id="labelMano">Mano de obra</span><span id="bMano">$ 0</span></div>
@@ -353,8 +544,28 @@
       <div class="b-row total"><span>Precio final por unidad</span><span id="bTotal">$ 0</span></div>
     </div>
 
-<div class="tip">
-      <strong>Tip:</strong> El campo <strong>Meta independencia</strong> es tu aporte mensual para mudarte dividido por la cantidad de unidades que producís por mes. Así cada venta te acerca a tu objetivo.
+    <div class="tip">
+      <strong>Tip:</strong> El campo <strong>Meta independencia</strong> es tu objetivo mensual dividido por la cantidad de unidades que producís. Así cada venta te acerca a poder vivir del emprendimiento.
+    </div>
+  </div>
+
+  <!-- Punto de equilibrio (nuevo) -->
+  <div class="beq-panel">
+    <div class="card-title">📊 Punto de equilibrio mensual</div>
+    <div style="font-size: 13px; color: var(--muted); line-height: 1.6;" id="beqTexto">—</div>
+    <div class="beq-metrics">
+      <div class="beq-metric">
+        <div class="beq-metric-label">Metros DTF para este pedido</div>
+        <div class="beq-metric-val" id="beqMetros">—</div>
+      </div>
+      <div class="beq-metric">
+        <div class="beq-metric-label">Unidades/mes para cubrir fijos</div>
+        <div class="beq-metric-val" id="beqUnidades">—</div>
+      </div>
+      <div class="beq-metric">
+        <div class="beq-metric-label">Facturación mínima mensual</div>
+        <div class="beq-metric-val" id="beqFacturacion">—</div>
+      </div>
     </div>
   </div>
 
@@ -377,16 +588,20 @@
 </div><!-- fin .container -->
 
 <script>
+var modoActual = 'producto';
+var clienteTrae = false;
+var dtfAutoVal = 0;
+
 function fmt(n) {
   return '$ ' + Math.round(n).toLocaleString('es-AR');
 }
-
-var modoActual = 'producto';
 
 function setModo(modo) {
   modoActual = modo;
   document.getElementById('seccion-diseno').style.display = modo === 'diseno' ? 'block' : 'none';
   document.getElementById('seccion-producto').style.display = modo === 'producto' ? 'grid' : 'none';
+  document.getElementById('panel-fijos').style.display = modo === 'producto' ? 'block' : 'none';
+  document.getElementById('beq-panel') && (document.querySelector('.beq-panel').style.display = modo === 'producto' ? 'block' : 'none');
   calc();
 }
 
@@ -398,6 +613,58 @@ function setDiseno(btn, tipo) {
   var horas = { 'Simple': 1, 'Medio': 2.5, 'Mesa DTF / Sublimación': 5 };
   document.getElementById('precioDiseno').value = precios[tipo] || 0;
   document.getElementById('horasDiseno').value = horas[tipo] || 1;
+  calc();
+}
+
+function toggleClienteTrae() {
+  clienteTrae = !clienteTrae;
+  document.getElementById('toggleSwitch').classList.toggle('on', clienteTrae);
+  document.getElementById('toggleLabel').textContent = clienteTrae ? 'El cliente trae la remera ✔' : 'El cliente trae la remera';
+  document.getElementById('field-materiales').style.opacity = clienteTrae ? '0.4' : '1';
+  document.getElementById('materiales').disabled = clienteTrae;
+  if (clienteTrae) document.getElementById('materiales').value = 0;
+  calc();
+}
+
+function calcDTF() {
+  var ancho = parseFloat(document.getElementById('dtfAncho').value) || 0;
+  var alto = parseFloat(document.getElementById('dtfAlto').value) || 0;
+  var precioMetro = parseFloat(document.getElementById('dtfPrecioMetro').value) || 12000;
+  var cantDis = parseFloat(document.getElementById('dtfCantDis').value) || 1;
+  var ROLL_W = 58;
+
+  if (ancho <= 0 || alto <= 0) { document.getElementById('dtfResult').innerHTML = '—'; return; }
+
+  var porFila = Math.floor(ROLL_W / ancho);
+  var filasPorMetro = Math.floor(100 / alto);
+  var disPorMetro = porFila * filasPorMetro;
+
+  var costoPorDis = disPorMetro > 0 ? precioMetro / disPorMetro : precioMetro;
+  dtfAutoVal = Math.round(costoPorDis * cantDis);
+
+  document.getElementById('dtf').value = dtfAutoVal;
+  document.getElementById('dtfResult').innerHTML =
+    porFila + ' por fila × ' + filasPorMetro + ' filas = <strong>' + disPorMetro + ' diseños/metro</strong> → <strong>' + fmt(costoPorDis) + '</strong> c/u' +
+    (cantDis > 1 ? ' × ' + cantDis + ' = <strong>' + fmt(dtfAutoVal) + '</strong>' : '');
+
+  calc();
+}
+
+function calcFijos() {
+  var luz = parseFloat(document.getElementById('fijo-luz').value) || 0;
+  var transp = parseFloat(document.getElementById('fijo-transp').value) || 0;
+  var alquiler = parseFloat(document.getElementById('fijo-alquiler').value) || 0;
+  var otros = parseFloat(document.getElementById('fijo-otros').value) || 0;
+  var total = luz + transp + alquiler + otros;
+
+  document.getElementById('fijosTotal').textContent = fmt(total);
+
+  var cant = parseFloat(document.getElementById('cantidad').value) || 1;
+  var pedidosMes = parseFloat(document.getElementById('pedidosMes').value) || 4;
+  var unidadesMes = cant * pedidosMes;
+  var fijoPorUnidad = unidadesMes > 0 ? total / unidadesMes : 0;
+
+  document.getElementById('fijos').value = Math.round(fijoPorUnidad);
   calc();
 }
 
@@ -420,12 +687,12 @@ function calc() {
     document.getElementById('labelMano').textContent = 'Mano de obra';
     document.getElementById('labelDis').textContent = 'Diseño adicional';
   } else {
-    mat2 = parseFloat(document.getElementById('materiales').value) || 0;
+    mat2 = clienteTrae ? 0 : (parseFloat(document.getElementById('materiales').value) || 0);
     dtf2 = parseFloat(document.getElementById('dtf').value) || 0;
     mano2 = parseFloat(document.getElementById('manoobra').value) || 0;
     dis2 = parseFloat(document.getElementById('diseno').value) || 0;
     costo = mat2 + dtf2 + mano2 + dis2 + fij + meta;
-    document.getElementById('labelMat').textContent = 'Materiales';
+    document.getElementById('labelMat').textContent = clienteTrae ? 'Materiales (cliente trae)' : 'Materiales';
     document.getElementById('labelDtf').textContent = 'Transfer DTF';
     document.getElementById('labelMano').textContent = 'Mano de obra';
     document.getElementById('labelDis').textContent = 'Diseño';
@@ -441,7 +708,7 @@ function calc() {
   document.getElementById('totalPedido').textContent = fmt(totalPedido);
   document.getElementById('cantLabel').textContent = Math.round(cant);
 
-  document.getElementById('bMat').textContent = fmt(mat2);
+  document.getElementById('bMat').textContent = clienteTrae ? '—' : fmt(mat2);
   document.getElementById('bDtf').textContent = fmt(dtf2);
   document.getElementById('bMano').textContent = modoActual === 'diseno' ? '—' : fmt(mano2);
   document.getElementById('bDis').textContent = modoActual === 'diseno' ? '—' : fmt(dis2);
@@ -450,15 +717,40 @@ function calc() {
   document.getElementById('bGan').textContent = fmt(ganancia);
   document.getElementById('bPct').textContent = Math.round(margen);
   document.getElementById('bTotal').textContent = fmt(precio);
+
+  // Punto de equilibrio
+  if (modoActual === 'producto' && ganancia > 0) {
+    var fijosTotal = (parseFloat(document.getElementById('fijo-luz').value) || 0)
+      + (parseFloat(document.getElementById('fijo-transp').value) || 0)
+      + (parseFloat(document.getElementById('fijo-alquiler').value) || 0)
+      + (parseFloat(document.getElementById('fijo-otros').value) || 0);
+
+    var unidsParaBeq = fijosTotal > 0 ? Math.ceil(fijosTotal / ganancia) : 0;
+    var facMinima = unidsParaBeq * precio;
+
+    // Metros DTF necesarios para este pedido
+    var ancho = parseFloat(document.getElementById('dtfAncho').value) || 25;
+    var alto = parseFloat(document.getElementById('dtfAlto').value) || 30;
+    var porFila = Math.floor(58 / ancho);
+    var filasPorMetro = Math.floor(100 / alto);
+    var disPorMetro = porFila * filasPorMetro;
+    var metrosNecesarios = disPorMetro > 0 ? (cant / disPorMetro).toFixed(2) : '—';
+
+    document.getElementById('beqMetros').textContent = metrosNecesarios + (metrosNecesarios !== '—' ? ' m' : '');
+    document.getElementById('beqUnidades').textContent = unidsParaBeq;
+    document.getElementById('beqFacturacion').textContent = fmt(facMinima);
+    document.getElementById('beqTexto').textContent =
+      'Con gastos fijos de ' + fmt(fijosTotal) + '/mes y una ganancia de ' + fmt(ganancia) + ' por unidad, necesitás vender ' + unidsParaBeq + ' unidades por mes para cubrir tus costos fijos.';
+  }
 }
 
 function setProducto(btn, mat, mano, dis) {
-  document.querySelectorAll('.prod-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.productos .prod-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('materiales').value = mat;
+  if (!clienteTrae) document.getElementById('materiales').value = mat;
   document.getElementById('manoobra').value = mano;
   document.getElementById('diseno').value = dis;
-  document.getElementById('dtf').value = 0;
+  calcDTF();
   calc();
 }
 
@@ -466,20 +758,29 @@ function getData() {
   return {
     cliente: document.getElementById('clienteNombre').value || 'Sin nombre',
     modo: modoActual,
+    clienteTrae: clienteTrae,
     materiales: document.getElementById('materiales').value,
     dtf: document.getElementById('dtf').value,
+    dtfAncho: document.getElementById('dtfAncho').value,
+    dtfAlto: document.getElementById('dtfAlto').value,
+    dtfPrecioMetro: document.getElementById('dtfPrecioMetro').value,
+    dtfCantDis: document.getElementById('dtfCantDis').value,
     manoobra: document.getElementById('manoobra').value,
     diseno: document.getElementById('diseno').value,
     precioDiseno: document.getElementById('precioDiseno').value,
     horasDiseno: document.getElementById('horasDiseno').value,
     valorHora: document.getElementById('valorHora').value,
-    fijos: document.getElementById('fijos').value,
+    fijoLuz: document.getElementById('fijo-luz').value,
+    fijoTransp: document.getElementById('fijo-transp').value,
+    fijoAlquiler: document.getElementById('fijo-alquiler').value,
+    fijoOtros: document.getElementById('fijo-otros').value,
     meta: document.getElementById('meta').value,
     cantidad: document.getElementById('cantidad').value,
+    pedidosMes: document.getElementById('pedidosMes').value,
     margen: document.getElementById('margen').value,
     precioFinal: document.getElementById('precioVenta').innerText,
     totalPedido: document.getElementById('totalPedido').innerText,
-    producto: document.querySelector('.prod-btn.active')?.innerText || ''
+    producto: document.querySelector('.productos .prod-btn.active')?.innerText || ''
   };
 }
 
@@ -518,25 +819,37 @@ function cargarPresupuesto() {
   if (data.modo === 'diseno') {
     document.getElementById('precioDiseno').value = data.precioDiseno || 0;
     document.getElementById('horasDiseno').value = data.horasDiseno || 1;
-    document.getElementById('valorHora').value = data.valorHora || 1500;
+    document.getElementById('valorHora').value = data.valorHora || 3000;
   } else {
+    if (data.clienteTrae) toggleClienteTrae();
     document.getElementById('materiales').value = data.materiales || 0;
-    document.getElementById('dtf').value = data.dtf || 0;
+    document.getElementById('dtfAncho').value = data.dtfAncho || 25;
+    document.getElementById('dtfAlto').value = data.dtfAlto || 30;
+    document.getElementById('dtfPrecioMetro').value = data.dtfPrecioMetro || 12000;
+    document.getElementById('dtfCantDis').value = data.dtfCantDis || 1;
+    document.getElementById('fijo-luz').value = data.fijoLuz || 75000;
+    document.getElementById('fijo-transp').value = data.fijoTransp || 75000;
+    document.getElementById('fijo-alquiler').value = data.fijoAlquiler || 0;
+    document.getElementById('fijo-otros').value = data.fijoOtros || 0;
     document.getElementById('manoobra').value = data.manoobra || 0;
     document.getElementById('diseno').value = data.diseno || 0;
   }
 
-  document.getElementById('fijos').value = data.fijos || 0;
   document.getElementById('meta').value = data.meta || 0;
   document.getElementById('cantidad').value = data.cantidad || 1;
+  document.getElementById('pedidosMes').value = data.pedidosMes || 4;
   document.getElementById('margen').value = data.margen || 30;
   document.getElementById('margenVal').textContent = (data.margen || 30) + '%';
 
+  calcDTF();
+  calcFijos();
   calc();
   alert('Presupuesto de ' + data.cliente + ' cargado ✔');
 }
 
-calc();
+// Init
+calcDTF();
+calcFijos();
 </script>
 </body>
 </html>
